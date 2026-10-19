@@ -459,7 +459,7 @@ export class Core {
 				) {
 					timecode = '00:00:00';
 				}
-
+				console.log("Chap debug",startTime,dateNow,timecode)
 				if (this.LastChapterTimestamp === 0 || new Date(dateNow - this.LastChapterTimestamp).getSeconds() > 10) {
 					this.LastChapterTimestamp = timecode === '00:00:00' && startTime !== null ? startTime : dateNow;
 					description = description + '\n' + timecode + (separator ? separator : ' - ') + title;

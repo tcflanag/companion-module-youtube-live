@@ -28,6 +28,14 @@ export function declareVars(memory: StateMemory, unfinishedCnt: number): Compani
 			variableId: `broadcast_${item.Id}_health`,
 			name: `Health of the stream bound to broadcast titled '${item.Name}'`,
 		});
+		result.push({
+			variableId: `broadcast_${item.Id}_streamName`,
+			name: `stream name of the stream bound to broadcast titled '${item.Name}'`,
+		});
+		result.push({
+			variableId: `broadcast_${item.Id}_ingestURL`,
+			name: `Ingestion URL of the stream bound to broadcast titled '${item.Name}'`,
+		});
 	});
 
 	Array(unfinishedCnt)
@@ -63,9 +71,11 @@ export function exportVars(memory: StateMemory, unfinishedCnt: number): Variable
 		const stream = memory.Streams[broadcast.BoundStreamId];
 
 		result.push(...getStreamVars(broadcast, stream));
+		
 	});
 
 	let loop = 0;
+	console.log("----")
 	memory.UnfinishedBroadcasts.forEach((broadcast, i) => {
 		if (i < unfinishedCnt) {
 			result.push(...getUnfinishedBroadcastVars(i, broadcast));
@@ -144,6 +154,16 @@ export function getStreamVars(broadcast: Broadcast, stream: Stream): VariableCon
 		name: `broadcast_${broadcast.Id}_health`,
 		value: 'unknown',
 	};
+	
+	const streamName: VariableContent = {
+		name: `broadcast_${broadcast.Id}_streamName`,
+		value: stream.streamName
+	};
+	
+	const ingestURL: VariableContent = {
+		name: `broadcast_${broadcast.Id}_ingestURL`,
+		value: stream.ingestionAddress
+	};
 
 	switch (stream.Health) {
 		case StreamHealth.Good:
@@ -159,8 +179,10 @@ export function getStreamVars(broadcast: Broadcast, stream: Stream): VariableCon
 			content.value = 'NODATA';
 			break;
 	}
+	
 
-	return [content];
+	
+	return [content, streamName, ingestURL];
 }
 
 /**
@@ -169,6 +191,7 @@ export function getStreamVars(broadcast: Broadcast, stream: Stream): VariableCon
  * @param broadcast Broadcast to generate variables for
  */
 function getUnfinishedBroadcastVars(index: number, broadcast: Broadcast): VariableContent[] {
+	console.log(index, broadcast.Id)
 	const contentName: VariableContent = {
 		name: `unfinished_${index}`,
 		value: broadcast.Name,

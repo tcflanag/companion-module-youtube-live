@@ -115,6 +115,10 @@ export interface Stream {
 
 	/** Health metric of this stream */
 	Health: StreamHealth;
+	
+	streamName: string;
+	
+	ingestionAddress: string;
 }
 
 /**

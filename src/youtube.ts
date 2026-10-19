@@ -129,14 +129,18 @@ export class YoutubeConnector implements YoutubeAPI {
 		});
 
 		const mapping: BroadcastMap = {};
-
+		
 		response.data.items?.forEach((item) => {
+
 			const id = item.id!;
 			const status = item.status!.lifeCycleStatus! as BroadcastLifecycle;
 			const monitor = item.contentDetails!.monitorStream!.enableMonitorStream ?? true;
 			const concurrentViewers = item.statistics!.concurrentViewers ?? 'n/a';
 			const description = item.snippet!.description ?? '';
-
+			if (status != "complete") {
+				//console.log(status,item.snippet?.actualStartTime? item.snippet.actualStartTime: null)
+				//console.log("--1--")
+			}
 			mapping[id] = {
 				Id: id,
 				Name: item.snippet!.title!,
@@ -171,6 +175,9 @@ export class YoutubeConnector implements YoutubeAPI {
 		const item = response.data.items[0];
 		const status = item.status!.lifeCycleStatus! as BroadcastLifecycle;
 		const concurrentViewers = item.statistics!.concurrentViewers ?? 'n/a';
+		//console.log(broadcast)
+		//console.log(item.snippet?.actualStartTime? item.snippet.actualStartTime: null)
+		//console.log("--3--")
 		const actualStartTime = broadcast.ActualStartTime
 			? broadcast.ActualStartTime
 			: item.snippet?.actualStartTime
@@ -203,8 +210,11 @@ export class YoutubeConnector implements YoutubeAPI {
 		});
 
 		const mapping: BroadcastMap = {};
-
+		
+		
 		response.data.items?.forEach((item) => {
+		//console.log(item.snippet?.actualStartTime? item.snippet.actualStartTime: null)
+		//console.log("--2--")
 			const id = item.id!;
 			const status = item.status!.lifeCycleStatus! as BroadcastLifecycle;
 			const concurrentViewers = item.statistics!.concurrentViewers ?? 'n/a';
@@ -237,22 +247,25 @@ export class YoutubeConnector implements YoutubeAPI {
 	 */
 	async listBoundStreams(broadcasts: BroadcastMap): Promise<StreamMap> {
 		const streamIds = Array.from(new Set(Object.values(broadcasts).map((broadcast) => broadcast.BoundStreamId)));
-
+		
 		const response = await this.ApiClient.liveStreams.list({
-			part: ['status'],
+			part: ['status','cdn'],
 			id: streamIds as Array<string>,
 			maxResults: this.MaxBroadcasts,
 		});
-
+		
 		const mapping: StreamMap = {};
-
 		response.data.items?.forEach((item) => {
 			const id = item.id!;
 			const health = item.status!.healthStatus!.status! as StreamHealth;
+			const streamName = item.cdn!.ingestionInfo!.streamName! as string;
+			const ingestionAddress = item.cdn!.ingestionInfo!.ingestionAddress! as string;
 
 			mapping[id] = {
 				Id: id,
 				Health: health,
+				streamName: streamName,
+				ingestionAddress: ingestionAddress
 			};
 		});
 
